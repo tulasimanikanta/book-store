@@ -1,0 +1,86 @@
+version: "3.9"
+services:
+  postgres_1:
+    image: postgres:14.4
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=postgres
+  auth-server:
+    build: ../auth-server
+    ports:
+      - "9010:9010"
+  book-store-registry:
+    build: ../book-store-registry
+    ports:
+      - "9500:9500"
+  book-store-gateway:
+    build: ../book-store-gateway
+    ports:
+      - "9000:9000"
+    depends_on:
+      - book-store-registry
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://book-store-registry:9500
+  books-api_1:
+    build: ../books-api
+    image: "services/books-api"
+    ports:
+      - "9100:9100"
+    depends_on:
+      - book-store-registry
+      - book-store-gateway
+      - auth-server
+      - postgres_1
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://book-store-registry:9500
+      - OAUTH_SERVER_ADDRESS=http://auth-server:9010
+      - POSTGRES_ADDRESS=postgres_1
+  books-api_2:
+    build: ../books-api
+    image: "services/books-api"
+    ports:
+      - "9101:9100"
+    depends_on:
+      - book-store-registry
+      - book-store-gateway
+      - auth-server
+      - postgres_1
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://book-store-registry:9500
+      - OAUTH_SERVER_ADDRESS=http://auth-server:9010
+      - POSTGRES_ADDRESS=postgres_1
+  issuers_api_1:
+    build: ../issuers-api
+    image: "services/issuers-api"
+    ports:
+      - "9200:9200"
+    depends_on:
+      - book-store-registry
+      - book-store-gateway
+      - auth-server
+      - postgres_1
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://book-store-registry:9500
+      - POSTGRES_ADDRESS=postgres_1
+      - OAUTH_SERVER_ADDRESS=http://auth-server:9010
+      - BOOKS_API_ADDRESS=http://book-store-gateway:9000
+  issuers_api_2:
+    build: ../issuers-api
+    image: "services/issuers-api"
+    ports:
+      - "9201:9200"
+    depends_on:
+      - book-store-registry
+      - book-store-gateway
+      - auth-server
+      - postgres_1
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://book-store-registry:9500
+      - POSTGRES_ADDRESS=postgres_1
+      - OAUTH_SERVER_ADDRESS=http://auth-server:9010
+      - BOOKS_API_ADDRESS=http://book-store-gateway:9000

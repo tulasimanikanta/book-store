@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: book-store-eureka-registry
+server:
+  port: 9500
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:9500}/eureka/

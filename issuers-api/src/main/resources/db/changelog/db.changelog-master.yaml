@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Mani
+  - include:
+      file: definitions/V1_create_test_issuers_table.sql
+      relativeToChangelogFile: true
+  - include:
+      file: data/V2_create_test_issuers_data.sql
+      relativeToChangelogFile: true

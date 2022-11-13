@@ -1,0 +1,25 @@
+server:
+  port: 9000
+spring:
+  application:
+    name: book-store-api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: books-api-route
+          uri: lb://books-api
+          predicates:
+            - Path=/api/books/**
+        - id: issuers-api-route
+          uri: lb://issuers-api
+          predicates:
+            - Path=/api/customers/**
+logging:
+  level:
+    org:
+      springframework: TRACE
+eureka:
+  client:
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:9500}/eureka
